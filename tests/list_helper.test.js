@@ -114,3 +114,28 @@ describe('Favourite blog', () => {
     expect(result).toEqual(expectedResult);
   });
 });
+
+describe('Most blogs', () => {
+  test('of empty list is empty object', () => {
+    const result = listHelper.mostBlogs(listWithNoBlogs);
+    expect(result).toEqual({});
+  });
+
+  test('when list has one blog is equal to that author', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog);
+    const expectedResult = {
+      author: 'Edsger W. Dijkstra',
+      blogs: 1
+    };
+    expect(result).toEqual(expectedResult);
+  });
+
+  test('of a bigger list is calculated correctly', () => {
+    const result = listHelper.mostBlogs(blogs);
+    const expectedResult = {
+      author: 'Robert C. Martin',
+      blogs: 3
+    };
+    expect(result).toEqual(expectedResult);
+  });
+});
