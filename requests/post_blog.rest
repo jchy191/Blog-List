@@ -1,0 +1,45 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Singing in the rain",
+  "author": "Joshua",
+  "url": "urlll",
+  "likes": 30
+}
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Apples are good",
+  "author": "Pear",
+  "url": "blah",
+  "likes": 92
+}
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Disneyland",
+  "author": "Mickey the Mouse",
+  "url": "idk",
+  "likes": 439
+}
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Hello World :D",
+  "author": "Joshua",
+  "url": "lala",
+  "likes": 1
+}
