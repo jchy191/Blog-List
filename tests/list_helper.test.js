@@ -1,4 +1,3 @@
-const { describe, test, expect } = require('@jest/globals');
 const listHelper = require('../utils/list_helper.js');
 
 it('Dummy function returns one', () => {

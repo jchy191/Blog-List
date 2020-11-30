@@ -4,10 +4,10 @@
   "description": "Full Stack Open project",
   "main": "index.js",
   "scripts": {
-    "start": "npm index.js",
-    "dev": "nodemon index.js",
+    "start": "cross-env NODE_ENV=production npm index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
     "lint": "eslint .",
-    "test": "jest --verbose"
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand"
   },
   "repository": {
     "type": "git",
@@ -27,11 +27,13 @@
     "mongoose": "^5.10.18"
   },
   "devDependencies": {
+    "cross-env": "^7.0.2",
     "eslint": "^7.14.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
     "jest": "^26.6.3",
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.6",
+    "supertest": "^6.0.1"
   },
   "jest": {
     "testEnvironment": "node"
