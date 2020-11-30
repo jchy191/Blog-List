@@ -28,9 +28,70 @@ test('Blogs are returned with unique identifier named id', async () => {
 });
 
 test('A valid post can be added', async () => {
-  
+  const newPost = {
+    author: 'Matthew',
+    title: 'He is King',
+    url: 'www.genealogy.com',
+    likes: 39,
+  };
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(201)
+    .expect('Content-Type', /application\/json/);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  expect(blogsAtEnd).toHaveLength(helper.initialPosts.length + 1);
+
+  const titles = blogsAtEnd.map(blog => blog.title);
+  expect(titles).toContain('He is King');
 });
 
+test('Blog without likes defaults to zero likes', async () => {
+  const newPost = {
+    author: 'Matthew',
+    title: 'He is King',
+    url: 'www.genealogy.com',
+  };
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(201)
+    .expect('Content-Type', /application\/json/);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  expect(blogsAtEnd[blogsAtEnd.length - 1].likes).toBe(0);
+});
+
+test('Blog without title is not added', async () => {
+  const newPost = {
+    author: 'Matthew',
+    url: 'www.genealogy.com',
+    likes: 92
+  };
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(400);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  expect(blogsAtEnd).toHaveLength(helper.initialPosts.length);
+});
+
+test('Blog without url is not added', async () => {
+  const newPost = {
+    author: 'Matthew',
+    title: 'He is King',
+    likes: 92
+  };
+  await api
+    .post('/api/blogs')
+    .send(newPost)
+    .expect(400);
+
+  const blogsAtEnd = await helper.blogsInDb();
+  expect(blogsAtEnd).toHaveLength(helper.initialPosts.length);
+});
 
 
 afterAll(() => {
