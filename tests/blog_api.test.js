@@ -126,6 +126,60 @@ describe('Addition of a new blog post', () => {
   });
 });
 
+describe('Updating a blog post', () => {
+  test('succeeds with statuscode 200 if information is valid', async () => {
+    const blogsAtStart = await helper.blogsInDb();
+    const blogToUpdate = blogsAtStart[0];
+    const updatedPost = {
+      ...blogToUpdate,
+      likes: blogToUpdate.likes + 1
+    };
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedPost)
+      .expect(200);
+
+    const blogsAtEnd = await helper.blogsInDb();
+    expect(blogsAtEnd[0].likes).toBe(blogsAtStart[0].likes + 1);
+  });
+
+  test('fails with statuscode 400 if title is not included', async () => {
+    const blogsAtStart = await helper.blogsInDb();
+    const blogToUpdate = blogsAtStart[0];
+    const updatedPostWithoutURL = {
+      author: blogToUpdate.author,
+      url: blogToUpdate.url,
+      likes: blogToUpdate.likes + 1
+    };
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedPostWithoutURL)
+      .expect(400);
+
+    const blogsAtEnd = await helper.blogsInDb();
+    expect(blogsAtEnd[0].likes).toBe(blogsAtStart[0].likes);
+  });
+
+  test('fails with statuscode 400 if URL is not included', async () => {
+    const blogsAtStart = await helper.blogsInDb();
+    const blogToUpdate = blogsAtStart[0];
+    const updatedPostWithoutURL = {
+      title: blogToUpdate.title,
+      author: blogToUpdate.author,
+      likes: blogToUpdate.likes + 1
+    };
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedPostWithoutURL)
+      .expect(400);
+
+    const blogsAtEnd = await helper.blogsInDb();
+    expect(blogsAtEnd[0].likes).toBe(blogsAtStart[0].likes);
+  });
+});
 
 describe('Deletion of a blog post', () => {
   test('succeeds with statuscode 204 if id is valid', async () => {
