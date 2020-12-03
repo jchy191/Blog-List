@@ -1,10 +1,26 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+const bcrypt = require('bcrypt');
 const app = require('../app');
 const Blog = require('../models/blogs.js');
+const User = require('../models/users.js');
 const helper = require('./test_helper.js');
 
 const api = supertest(app);
+
+let token;
+
+beforeAll(async () => {
+  await User.deleteMany({});
+  const passwordHash = await bcrypt.hash('secret', 14);
+  const user = new User({ username: 'test', name: 'tester', passwordHash, blogs: [] });
+  await user.save();
+
+  const response = await api
+    .post('/api/login')
+    .send({ username: 'test', password: 'secret' });
+  token = `bearer ${response.body.token}`;
+});
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -12,6 +28,10 @@ beforeEach(async () => {
     let blogObject = new Blog(blog);
     await blogObject.save();
   }
+});
+
+afterAll(() => {
+  mongoose.connection.close();
 });
 
 describe('When there are initially some blogs saved', () => {
@@ -60,7 +80,7 @@ describe('Viewing a specific blog post', () => {
 });
 
 describe('Addition of a new blog post', () => {
-  test('succeeds with valid data', async () => {
+  test('add succeeds with valid data', async () => {
     const newPost = {
       author: 'Matthew',
       title: 'He is King',
@@ -69,6 +89,7 @@ describe('Addition of a new blog post', () => {
     };
     await api
       .post('/api/blogs')
+      .set({ 'Authorization': `${token}` })
       .send(newPost)
       .expect(201)
       .expect('Content-Type', /application\/json/);
@@ -88,6 +109,7 @@ describe('Addition of a new blog post', () => {
     };
     await api
       .post('/api/blogs')
+      .set({ 'Authorization': `${token}` })
       .send(newPost)
       .expect(201)
       .expect('Content-Type', /application\/json/);
@@ -104,6 +126,7 @@ describe('Addition of a new blog post', () => {
     };
     await api
       .post('/api/blogs')
+      .set({ 'Authorization': `${token}` })
       .send(newPost)
       .expect(400);
 
@@ -119,6 +142,7 @@ describe('Addition of a new blog post', () => {
     };
     await api
       .post('/api/blogs')
+      .set({ 'Authorization': `${token}` })
       .send(newPost)
       .expect(400);
     const blogsAtEnd = await helper.blogsInDb();
@@ -184,12 +208,24 @@ describe('Updating a blog post', () => {
 describe('Deletion of a blog post', () => {
   test('succeeds with statuscode 204 if id is valid', async () => {
     const blogsAtStart = await helper.blogsInDb();
-    const blogToRemove = blogsAtStart[0];
+    const newPost = {
+      author: 'Matthew',
+      title: 'He is King',
+      url: 'www.genealogy.com',
+      likes: 39,
+    };
+    const blogToRemove = await api
+      .post('/api/blogs')
+      .set({ 'Authorization': `${token}` })
+      .send(newPost);
+
     await api
-      .delete(`/api/blogs/${blogToRemove.id}`)
+      .delete(`/api/blogs/${blogToRemove.body.id}`)
+      .set({ 'Authorization': `${token}` })
       .expect(204);
+
     const blogsAtEnd = await helper.blogsInDb();
-    expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1);
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length);
   });
 });
 
