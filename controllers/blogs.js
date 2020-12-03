@@ -63,7 +63,14 @@ blogsRouter.put('/:id', async (req, res) => {
   res.status(200).json(updatedBlog);
 });
 
-blogsRouter.delete('/:id', async (req, res) => {
+blogsRouter.delete('/:id', middleware.tokenExtractor, async (req, res, next) => {
+  const blog = await Blog.findById(req.params.id);
+
+  if (req.decodedToken.id !== blog.user.toString()) {
+    const err = new Error ('Unauthorised deletion');
+    err.status = 401;
+    return next(err);
+  }
   await Blog.findByIdAndDelete(req.params.id);
   res.status(204).end();
 });
