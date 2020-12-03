@@ -7,6 +7,15 @@ blogsRouter.get('/', async (req, res) => {
   res.json(blogList);
 });
 
+blogsRouter.get('/:id', async (req, res) => {
+  const blog = await Blog.findById(req.params.id);
+  if (blog) {
+    res.status(200).json(blog);
+  } else {
+    return res.status(404).json({ error: 'Blog does not exist' });
+  }
+});
+
 blogsRouter.post('/', async (req, res) => {
   if (!req.body.likes) {
     req.body.likes = 0;
