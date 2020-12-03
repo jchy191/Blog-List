@@ -6,6 +6,7 @@ const config = require('./utils/config');
 const app = express();
 const notesRouter = require('./controllers/blogs.js');
 const usersRouter = require('./controllers/users.js');
+const loginRouter = require('./controllers/login');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -18,12 +19,10 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, us
   .catch(() => logger.error('Error connecting to MongoDB'));
 
 app.use(express.json());
-
 app.use(middleware.requestLogger);
-
 app.use(cors());
-app.use(express.json());
 
+app.use('/api/login', loginRouter);
 app.use('/api/blogs', notesRouter);
 app.use('/api/users', usersRouter);
 
