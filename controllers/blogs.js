@@ -1,14 +1,19 @@
 const Blog = require('../models/blogs.js');
+const User = require('../models/users')
 const blogsRouter = require('express').Router();
 require('express-async-errors');
 
 blogsRouter.get('/', async (req, res) => {
-  const blogList = await Blog.find({});
+  const blogList = await Blog
+    .find({})
+    .populate('user', { username: 1, name: 1, id: 1 });
   res.json(blogList);
 });
 
 blogsRouter.get('/:id', async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
+  const blog = await Blog
+    .findById(req.params.id)
+    .populate('user', { username: 1, name: 1, id: 1 });
   if (blog) {
     res.status(200).json(blog);
   } else {
@@ -17,16 +22,30 @@ blogsRouter.get('/:id', async (req, res) => {
 });
 
 blogsRouter.post('/', async (req, res) => {
-  if (!req.body.likes) {
-    req.body.likes = 0;
+  const body = req.body;
+
+  if (!body.likes) {
+    body.likes = 0;
   }
 
-  if (!req.body.title || !req.body.url) {
+  if (!body.title || !body.url) {
     return res.status(400).json({ error: 'Missing information' });
   }
-  const blog = new Blog(req.body);
+
+  const user = await User.findOne({});
+  const blog = new Blog({
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    date: new Date(),
+    likes: body.likes,
+    user: user.id
+  });
 
   const savedBlog = await blog.save();
+  user.blogs = user.blogs.concat(savedBlog._id);
+  await user.save();
+
   res.status(201).json(savedBlog);
 });
 

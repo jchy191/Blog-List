@@ -22,7 +22,9 @@ usersRouter.post('/', async (req, res, next) => {
 });
 
 usersRouter.get('/', async (req, res) => {
-  const userList = await User.find({});
+  const userList = await User
+    .find({})
+    .populate('blogs');
   res.status(200).json(userList);
 });
 
