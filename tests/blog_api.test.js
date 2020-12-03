@@ -47,7 +47,7 @@ describe('Viewing a specific blog post', () => {
     await api
       .get(`/api/blogs/${validNonExistingId}`)
       .expect(404)
-      .expect('Content-Type', /application\/json/)
+      .expect('Content-Type', /application\/json/) 
       .expect({ 'error': 'Blog does not exist' });
   });
 
@@ -57,9 +57,7 @@ describe('Viewing a specific blog post', () => {
       .get(`/api/blogs/${invalidId}`)
       .expect(400);
   });
-
 });
-
 
 describe('Addition of a new blog post', () => {
   test('succeeds with valid data', async () => {
@@ -98,7 +96,7 @@ describe('Addition of a new blog post', () => {
     expect(blogsAtEnd[blogsAtEnd.length - 1].likes).toBe(0);
   });
 
-  test('fails if title is not included', async () => {
+  test('fails with statuscode 400 if title is not included', async () => {
     const newPost = {
       author: 'Matthew',
       url: 'www.genealogy.com',
@@ -113,7 +111,7 @@ describe('Addition of a new blog post', () => {
     expect(blogsAtEnd).toHaveLength(helper.initialPosts.length);
   });
 
-  test('fails if URL is not included', async () => {
+  test('fails with statuscode 400 if URL is not included', async () => {
     const newPost = {
       author: 'Matthew',
       title: 'He is King',
@@ -125,6 +123,19 @@ describe('Addition of a new blog post', () => {
       .expect(400);
     const blogsAtEnd = await helper.blogsInDb();
     expect(blogsAtEnd).toHaveLength(helper.initialPosts.length);
+  });
+});
+
+
+describe('Deletion of a blog post', () => {
+  test('succeeds with statuscode 204 if id is valid', async () => {
+    const blogsAtStart = await helper.blogsInDb();
+    const blogToRemove = blogsAtStart[0];
+    await api
+      .delete(`/api/blogs/${blogToRemove.id}`)
+      .expect(204);
+    const blogsAtEnd = await helper.blogsInDb();
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1);
   });
 });
 
