@@ -6,7 +6,7 @@ const config = require('./utils/config');
 const app = express();
 const notesRouter = require('./controllers/blogs.js');
 const usersRouter = require('./controllers/users.js');
-const loginRouter = require('./controllers/login');
+const loginRouter = require('./controllers/login.js');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -25,6 +25,11 @@ app.use(cors());
 app.use('/api/login', loginRouter);
 app.use('/api/blogs', notesRouter);
 app.use('/api/users', usersRouter);
+
+if (process.env.NODE_ENV === 'test') {
+  const testRouter = require('./controllers/testing.js');
+  app.use('/api/testing', testRouter);
+}
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
